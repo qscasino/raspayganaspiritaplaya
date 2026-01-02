@@ -1,0 +1,1181 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>Encuentra el Coco - spirita games (After Beach)</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet" />
+
+  <style>
+    :root{
+      --sky1:#10c2d6;
+      --sky2:#047aa5;
+      --deep:#05324a;
+
+      --sand1:#f7e1b1;
+      --sand2:#e9c98a;
+
+      --gold:#ffd700;
+      --coral:#ff4f7d;
+      --teal:#08b3b8;
+
+      --cardRadius:20px;
+      --shadowA: rgba(0,0,0,.50);
+      --shadowB: rgba(255,215,0,.22);
+    }
+
+    *{margin:0;padding:0;box-sizing:border-box}
+    html,body{height:100%}
+
+    body{
+      font-family:'Poppins',sans-serif;
+      min-height:100vh;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:flex-start;
+      padding:10px;
+      overflow-x:hidden;
+      position:relative;
+      color:#fff;
+
+      background:
+        radial-gradient(900px 500px at 20% 20%, rgba(255,255,255,.22), transparent 60%),
+        radial-gradient(800px 420px at 80% 25%, rgba(255,255,255,.16), transparent 60%),
+        linear-gradient(180deg, var(--sky1) 0%, var(--sky2) 58%, var(--deep) 100%);
+    }
+
+    body::before{
+      content:'';
+      position:fixed; inset:0;
+      background-image:
+        radial-gradient(2px 2px at 15% 30%, rgba(255,255,255,.18), transparent),
+        radial-gradient(3px 3px at 70% 20%, rgba(255,255,255,.12), transparent),
+        radial-gradient(2px 2px at 55% 60%, rgba(255,255,255,.10), transparent),
+        radial-gradient(1px 1px at 85% 10%, rgba(255,255,255,.18), transparent);
+      background-size: 240px 240px, 320px 320px, 280px 280px, 190px 190px;
+      animation: drift 28s linear infinite;
+      pointer-events:none;
+      z-index:0;
+      opacity:.70;
+    }
+    @keyframes drift { 0%{transform:translateY(0)} 100%{transform:translateY(-120px)} }
+
+    .preloader{
+      position:fixed; inset:0;
+      background:
+        radial-gradient(700px 420px at 20% 30%, rgba(255,255,255,.18), transparent 60%),
+        linear-gradient(180deg, var(--sky1) 0%, var(--sky2) 60%, var(--deep) 100%);
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      z-index:10000;
+      transition:opacity .5s ease, visibility .5s ease;
+    }
+    .preloader.hidden{opacity:0;visibility:hidden}
+
+    .preloader-logo{
+      max-width:180px;
+      height:auto;
+      margin-bottom:36px;
+      animation:pulse 2s ease-in-out infinite;
+      filter: drop-shadow(0 0 20px rgba(255,215,0,.45));
+    }
+    @keyframes pulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.05);opacity:.92}}
+
+    .progress-bar-container{
+      width:300px;height:8px;
+      background: rgba(255,255,255,.16);
+      border-radius:10px;
+      overflow:hidden;
+      border:1px solid rgba(255,255,255,.16);
+      box-shadow:0 0 22px rgba(255,255,255,.12);
+    }
+    .progress-bar{
+      height:100%;
+      width:0%;
+      border-radius:10px;
+      background: linear-gradient(90deg, rgba(255,255,255,.85), var(--gold), rgba(255,255,255,.85));
+      background-size: 200% 100%;
+      animation: loadProgress 2s ease-out forwards, shimmerBar 1.5s linear infinite;
+      box-shadow:0 0 18px rgba(255,215,0,.45);
+    }
+    @keyframes loadProgress{0%{width:0%}100%{width:100%}}
+    @keyframes shimmerBar{0%{background-position:0% 50%}100%{background-position:200% 50%}}
+
+    .loading-text{
+      margin-top:18px;
+      color: rgba(255,255,255,.92);
+      font-size:1.05rem;
+      font-weight:600;
+      text-shadow:0 0 10px rgba(0,0,0,.20);
+    }
+
+    .header{
+      text-align:center;
+      margin-bottom:14px;
+      position:relative;
+      z-index:2;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      width:100%;
+      max-width:650px;
+    }
+
+    .logo{
+      max-width:120px;
+      height:auto;
+      margin-bottom:10px;
+      filter: drop-shadow(0 10px 18px rgba(0,0,0,.22)) drop-shadow(0 0 20px rgba(255,215,0,.30));
+    }
+
+    .promo-banner{
+      background: linear-gradient(135deg, rgba(8,179,184,.92) 0%, rgba(255,79,125,.82) 100%);
+      color: #fff;
+      padding: 9px 18px;
+      border-radius: 999px;
+      font-size: .86rem;
+      font-weight: 800;
+      border: 2px solid rgba(255,255,255,.22);
+      box-shadow: 0 10px 22px rgba(0,0,0,.20);
+      margin-bottom: 12px;
+      text-transform: uppercase;
+      letter-spacing: .6px;
+      backdrop-filter: blur(6px);
+    }
+
+    h1{
+      font-family:'Playfair Display',serif;
+      font-size:clamp(2rem,5vw,2.75rem);
+      font-weight:900;
+      color:#fff;
+      text-shadow: 0 10px 24px rgba(0,0,0,.26);
+      margin-bottom: 6px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap: 14px;
+    }
+    .star-icon{
+      font-size:2.3rem;
+      animation: starRotate 5s linear infinite;
+      filter: drop-shadow(0 0 12px rgba(255,255,255,.45));
+    }
+    @keyframes starRotate{0%{transform:rotate(0)}100%{transform:rotate(360deg)}}
+
+    .subtitle{
+      color: rgba(255,255,255,.9);
+      font-size: clamp(.95rem, 2vw, 1.06rem);
+      font-weight: 500;
+      text-shadow: 0 2px 10px rgba(0,0,0,.22);
+      max-width: 560px;
+      line-height: 1.45;
+      padding: 0 8px;
+    }
+
+    #gameWrapper{
+      width:100%;
+      max-width:650px;
+      margin: 10px auto 0;
+      position:relative;
+      z-index:2;
+    }
+    #gameArea{ width:100%; position:relative; z-index:2; }
+
+    .scratch-container{
+      position:relative;
+      width:100%;
+      max-width:600px;
+      margin:0 auto;
+      border-radius: var(--cardRadius);
+      overflow:hidden;
+      box-shadow: 0 18px 46px var(--shadowA), 0 0 34px var(--shadowB);
+      border: 1px solid rgba(255,255,255,.16);
+      backdrop-filter: blur(6px);
+    }
+
+    .scratch-card{
+      position:relative;
+      width:100%;
+      height:400px;
+      background: linear-gradient(135deg, rgba(5,50,74,.82) 0%, rgba(3,34,52,.90) 100%);
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      border: 3px solid rgba(255,255,255,.20);
+      border-radius: var(--cardRadius);
+    }
+
+    .prize-content{
+      position:absolute; inset:0;
+      background:
+        radial-gradient(900px 500px at 20% 25%, rgba(255,255,255,.18), transparent 60%),
+        radial-gradient(800px 480px at 80% 55%, rgba(255,255,255,.10), transparent 60%),
+        linear-gradient(135deg, rgba(8,179,184,.90) 0%, rgba(4,122,165,.94) 55%, rgba(5,50,74,.98) 100%);
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      align-items:center;
+      gap: 18px;
+      padding: 28px;
+    }
+
+    .prize-star{
+      font-size: 4.6rem;
+      filter: drop-shadow(0 10px 20px rgba(0,0,0,.22)) drop-shadow(0 0 18px rgba(255,255,255,.30));
+      animation: prizeFloat 2.2s ease-in-out infinite;
+    }
+    @keyframes prizeFloat{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-10px) scale(1.04)}}
+
+    .prize-text{
+      font-size: 1.9rem;
+      font-weight: 900;
+      color: #fff;
+      text-align:center;
+      text-shadow: 0 8px 22px rgba(0,0,0,.32);
+      line-height: 1.25;
+    }
+
+    #scratchCanvas{
+      position:absolute; inset:0;
+      cursor:grab;
+      z-index:10;
+      width:100%;
+      height:100%;
+      touch-action:none;
+    }
+    #scratchCanvas:active{cursor:grabbing}
+
+    .splash-strip{
+      width:100%;
+      max-width:650px;
+      margin: 10px auto 0;
+      position:relative;
+      z-index:2;
+      border-radius: 18px;
+      overflow:hidden;
+      border: 1px solid rgba(255,255,255,.16);
+      box-shadow: 0 18px 46px rgba(0,0,0,.22);
+      backdrop-filter: blur(6px);
+    }
+    .splash-strip .water{
+      position:absolute; inset:0;
+      background:
+        radial-gradient(900px 400px at 20% 20%, rgba(255,255,255,.18), transparent 60%),
+        radial-gradient(900px 420px at 80% 60%, rgba(255,255,255,.12), transparent 60%),
+        linear-gradient(180deg, rgba(16,194,214,.50) 0%, rgba(4,122,165,.60) 55%, rgba(5,50,74,.68) 100%);
+      opacity: .95;
+    }
+    .splash-strip .water::before{
+      content:'';
+      position:absolute; left:-10%; right:-10%; top:-14px; height:64px;
+      background:
+        radial-gradient(120px 26px at 14% 60%, rgba(255,255,255,.50) 45%, transparent 46%),
+        radial-gradient(160px 28px at 36% 40%, rgba(255,255,255,.40) 45%, transparent 46%),
+        radial-gradient(190px 30px at 60% 62%, rgba(255,255,255,.46) 45%, transparent 46%),
+        radial-gradient(150px 28px at 82% 45%, rgba(255,255,255,.40) 45%, transparent 46%);
+      opacity:.55;
+      animation: foamMove 10s linear infinite;
+    }
+    @keyframes foamMove { 0%{transform:translateX(0)} 100%{transform:translateX(-220px)} }
+
+    .splash-strip .sand{
+      position:absolute; left:0; right:0; bottom:0;
+      height:44%;
+      background:
+        radial-gradient(500px 220px at 20% 10%, rgba(255,255,255,.14), transparent 62%),
+        linear-gradient(180deg, rgba(255,255,255,.08) 0%, rgba(0,0,0,.05) 100%),
+        linear-gradient(135deg, rgba(247,225,177,.96) 0%, rgba(233,201,138,.96) 100%);
+      clip-path: polygon(0 24%, 12% 18%, 26% 28%, 40% 20%, 54% 30%, 70% 18%, 86% 26%, 100% 20%, 100% 100%, 0 100%);
+      opacity: .95;
+    }
+    .splash-strip .grain{
+      position:absolute; inset:0;
+      background-image:
+        radial-gradient(2px 2px at 20% 70%, rgba(140,95,40,.20), transparent 60%),
+        radial-gradient(1.5px 1.5px at 40% 78%, rgba(140,95,40,.18), transparent 60%),
+        radial-gradient(1.8px 1.8px at 60% 82%, rgba(140,95,40,.16), transparent 60%),
+        radial-gradient(2px 2px at 80% 76%, rgba(140,95,40,.18), transparent 60%);
+      background-size: 140px 120px, 160px 140px, 150px 130px, 170px 150px;
+      opacity:.60;
+      pointer-events:none;
+    }
+    .splash-strip .content{
+      position:relative;
+      z-index:2;
+      padding: 12px 14px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+    }
+    .instructions{
+      color: rgba(255,255,255,.92);
+      font-size:.95rem;
+      font-weight:600;
+      text-shadow:0 2px 10px rgba(0,0,0,.20);
+      line-height: 1.35;
+    }
+
+    .modal{
+      display:none;
+      position:fixed; inset:0;
+      background: rgba(0,0,0,.80);
+      z-index:1000;
+      align-items:center;
+      justify-content:center;
+      backdrop-filter: blur(6px);
+      animation: fadeIn .25s ease;
+    }
+    .modal.active{display:flex}
+    @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+
+    .modal-content{
+      background:
+        radial-gradient(800px 420px at 20% 20%, rgba(255,255,255,.16), transparent 60%),
+        linear-gradient(135deg, rgba(8,179,184,.86) 0%, rgba(255,79,125,.76) 100%);
+      border: 2px solid rgba(255,255,255,.22);
+      border-radius: 22px;
+      padding: 34px 26px;
+      max-width: 460px;
+      width: 92%;
+      text-align:center;
+      position:relative;
+      box-shadow: 0 26px 70px rgba(0,0,0,.52);
+      animation: modalBounce .5s cubic-bezier(.34,1.56,.64,1);
+    }
+    @keyframes modalBounce{
+      0%{transform:scale(.35) rotate(-4deg);opacity:0}
+      55%{transform:scale(1.05) rotate(1deg)}
+      100%{transform:scale(1) rotate(0);opacity:1}
+    }
+
+    .modal-close{
+      position:absolute;
+      top: 12px; right: 12px;
+      background: rgba(255,255,255,.14);
+      border: 2px solid rgba(255,255,255,.24);
+      color: #fff;
+      font-size: 1.5rem;
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      cursor:pointer;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      transition: all .25s ease;
+      font-weight: 900;
+    }
+    .modal-close:hover{
+      background: rgba(255,255,255,.95);
+      color: #0b4f6b;
+      transform: rotate(90deg);
+    }
+
+    .modal-title{
+      font-size: 1.7rem;
+      color: #fff;
+      font-weight: 900;
+      margin-bottom: 10px;
+      text-shadow: 0 10px 22px rgba(0,0,0,.22);
+    }
+    .modal-prize{
+      font-size: 2.55rem;
+      font-weight: 900;
+      color: #fff;
+      margin: 12px 0 8px;
+      text-shadow: 0 12px 26px rgba(0,0,0,.26);
+    }
+    .modal-message{
+      color: rgba(255,255,255,.92);
+      font-size: 1.02rem;
+      line-height: 1.55;
+      margin-top: 10px;
+    }
+
+    .status-message{
+      text-align:center;
+      margin: 0 auto;
+      padding: 28px 20px;
+      background: rgba(255,255,255,.10);
+      border: 1px solid rgba(255,255,255,.18);
+      border-radius: 18px;
+      max-width: 600px;
+      position:relative;
+      z-index:2;
+      backdrop-filter: blur(6px);
+      box-shadow: 0 18px 46px rgba(0,0,0,.32);
+    }
+    .status-title{
+      font-size: 1.5rem;
+      font-weight: 900;
+      color: #fff;
+      margin-bottom: 8px;
+      text-shadow: 0 10px 22px rgba(0,0,0,.22);
+    }
+    .status-text{
+      font-size: 1.02rem;
+      color: rgba(255,255,255,.92);
+      line-height: 1.55;
+    }
+
+    .confetti{
+      position:fixed;
+      width:10px;height:10px;
+      pointer-events:none;
+      z-index:9999;
+      animation: confettiFall linear forwards;
+    }
+    @keyframes confettiFall{
+      0%{transform:translateY(-100vh) rotate(0deg);opacity:1}
+      100%{transform:translateY(100vh) rotate(720deg);opacity:0}
+    }
+
+    /* Three.js FX canvas */
+    #threeFx{
+      position:fixed;
+      inset:0;
+      z-index:1;
+      pointer-events:none;
+    }
+
+    @media (min-width: 769px){
+      .scratch-container{max-width:600px}
+      .scratch-card{height:450px}
+      .prize-star{font-size:5.4rem}
+      .prize-text{font-size:2.1rem}
+    }
+    @media (max-width: 768px){
+      .logo{max-width:100px}
+      .scratch-card{height:350px}
+      .prize-star{font-size:4rem}
+      .prize-text{font-size:1.6rem}
+      h1{font-size:1.85rem}
+      .star-icon{font-size:2rem}
+    }
+    @media (max-width: 480px){
+      .scratch-card{height:320px}
+      .prize-star{font-size:3.6rem}
+      .prize-text{font-size:1.42rem}
+    }
+  </style>
+</head>
+
+<body>
+  <canvas id="threeFx" aria-hidden="true"></canvas>
+
+  <div class="preloader" id="preloader">
+    <img src="assets/image.png" alt="Arkana Games" class="preloader-logo" />
+    <div class="progress-bar-container"><div class="progress-bar"></div></div>
+    <div class="loading-text">Cargando experiencia After Beach...</div>
+  </div>
+
+  <div class="header">
+    <img src="assets/image.png" alt="Arkana Games" class="logo" />
+    <div class="promo-banner">🌴 AFTER BEACH - RASPA Y GANA 🌴</div>
+
+    <!-- ✅ cambia a COCO -->
+    <h1>
+      <span class="star-icon">🥥</span>
+      ENCUENTRA EL COCO
+      <span class="star-icon">🥥</span>
+    </h1>
+
+    <p class="subtitle">
+      Raspa la tarjeta de <b>arena dorada</b> y descubrí tu premio del día. Cartas, dados y fichas… ¡la suerte está en la playa! 🌊
+    </p>
+  </div>
+
+  <div id="gameWrapper">
+    <div id="gameArea"></div>
+  </div>
+
+  <div class="splash-strip">
+    <div class="water"></div>
+    <div class="sand"></div>
+    <div class="grain"></div>
+    <div class="content">
+      <div class="instructions">✨ Usá tu mouse o dedo para raspar la superficie y revelar tu premio 🥥 ✨</div>
+    </div>
+  </div>
+
+  <div class="modal" id="modal">
+    <div class="modal-content">
+      <button class="modal-close" id="modalClose">&times;</button>
+
+      <!-- ✅ copia beach + coco -->
+      <div class="modal-title">🏖️ ¡Encontraste el Coco! 🥥</div>
+
+      <div class="modal-prize" id="modalPrize"></div>
+      <div class="modal-message" id="modalMessage">
+        ¡Disfrutá tu premio! 🌴
+      </div>
+    </div>
+  </div>
+
+  <audio id="backgroundMusic" loop>
+    <source src="assets/background-music.mp3" type="audio/mpeg" />
+  </audio>
+  <audio id="scratchSound">
+    <source src="assets/bell-sound.mp3" type="audio/mpeg" />
+  </audio>
+  <audio id="prizeSound">
+    <source src="assets/prize-sound.mp3" type="audio/mpeg" />
+  </audio>
+
+  <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+
+  <script>
+    /* =========================
+       🔐 LocalStorage (ARKANA)
+       ========================= */
+    const STORAGE_PREFIX = 'spirita_encuentra_coco';
+    const LAST_PLAY_KEY = `${STORAGE_PREFIX}_last_play`;
+    const PRIZE_KEY = `${STORAGE_PREFIX}_prize`;
+
+    const prizes = [
+      { text: 'Bono a Elección', weight: 35, emoji: '🎁' },
+      { text: '100% de Bono',   weight: 25, emoji: '💰' },
+      { text: '150% de Bono',   weight: 20, emoji: '💎' },
+      { text: '200% de Bono',   weight: 12, emoji: '👑' },
+    ];
+
+    function getWeightedRandomPrize() {
+      const totalWeight = prizes.reduce((sum, p) => sum + p.weight, 0);
+      let r = Math.random() * totalWeight;
+      for (const p of prizes) { if (r < p.weight) return p; r -= p.weight; }
+      return prizes[0];
+    }
+
+    let hasPlayedToday = false;
+    let isScratching = false;
+    let hasRevealed = false;
+    let currentPrize = null;
+
+    let lastScratchTime = 0;
+    const scratchSoundDelay = 150;
+
+    let lastAreaCheck = 0;
+
+    const gameArea = document.getElementById('gameArea');
+    const modal = document.getElementById('modal');
+    const modalClose = document.getElementById('modalClose');
+    const modalPrize = document.getElementById('modalPrize');
+    const preloader = document.getElementById('preloader');
+
+    const backgroundMusic = document.getElementById('backgroundMusic');
+    const scratchSound = document.getElementById('scratchSound');
+    const prizeSound = document.getElementById('prizeSound');
+
+    function unlockAudioOnce() {
+      backgroundMusic.volume = 0.28;
+      backgroundMusic.play().catch(()=>{});
+      window.removeEventListener('pointerdown', unlockAudioOnce);
+      window.removeEventListener('touchstart', unlockAudioOnce);
+    }
+    window.addEventListener('pointerdown', unlockAudioOnce, { passive:true });
+    window.addEventListener('touchstart', unlockAudioOnce, { passive:true });
+
+    setTimeout(() => {
+      preloader.classList.add('hidden');
+      backgroundMusic.volume = 0.28;
+      backgroundMusic.play().catch(() => {});
+    }, 2100);
+
+    function checkIfPlayedToday() {
+      const lastPlayDate = localStorage.getItem(LAST_PLAY_KEY);
+      const today = new Date().toDateString();
+      if (lastPlayDate === today) hasPlayedToday = true;
+    }
+
+    function initGame() {
+      checkIfPlayedToday();
+      if (hasPlayedToday) showAlreadyPlayed();
+      else setupScratchCard();
+
+      ThreeFX.start();
+      ThreeFX.scheduleBursts();
+    }
+
+    function setupScratchCard() {
+      currentPrize = getWeightedRandomPrize();
+      hasRevealed = false;
+
+      gameArea.innerHTML = `
+        <div class="scratch-container">
+          <div class="scratch-card">
+            <div class="prize-content">
+              <!-- ✅ coco en vez de estrella -->
+              <div class="prize-star">🥥</div>
+              <div class="prize-text">${currentPrize.text}</div>
+            </div>
+            <canvas id="scratchCanvas"></canvas>
+          </div>
+        </div>
+      `;
+
+      const canvas = document.getElementById('scratchCanvas');
+      const ctx = canvas.getContext('2d', { willReadFrequently: true });
+      const container = canvas.parentElement;
+
+      function sizeCanvas() {
+        canvas.width = container.offsetWidth;
+        canvas.height = container.offsetHeight;
+        canvas.style.width = '100%';
+        canvas.style.height = '100%';
+      }
+
+      function drawScratchLayer() {
+        const g = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+        g.addColorStop(0,  '#ffe7b6');
+        g.addColorStop(0.2,'#ffd27a');
+        g.addColorStop(0.5,'#fff1cf');
+        g.addColorStop(0.8,'#ffd27a');
+        g.addColorStop(1,  '#ffe7b6');
+
+        ctx.globalCompositeOperation = 'source-over';
+        ctx.fillStyle = g;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // granos de arena
+        ctx.globalAlpha = 0.18;
+        for (let i=0;i<120;i++){
+          const x = Math.random()*canvas.width;
+          const y = Math.random()*canvas.height;
+          const r = Math.random()*2.2+0.6;
+          ctx.fillStyle = `rgba(180,120,40,${Math.random()*0.35+0.15})`;
+          ctx.beginPath(); ctx.arc(x,y,r,0,Math.PI*2); ctx.fill();
+        }
+        ctx.globalAlpha = 1;
+
+        // marco coral + blanco
+        ctx.strokeStyle = 'rgba(255,79,125,.95)';
+        ctx.lineWidth = 7;
+        ctx.strokeRect(10, 10, canvas.width - 20, canvas.height - 20);
+
+        ctx.strokeStyle = 'rgba(255,255,255,.75)';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(18, 18, canvas.width - 36, canvas.height - 36);
+
+        // guías: cocos suaves
+        ctx.fillStyle = 'rgba(4,122,165,.16)';
+        const icoSize = Math.min(canvas.width, canvas.height) * 0.12;
+        ctx.font = `900 ${icoSize}px Arial`;
+        for (let i = 0; i < 8; i++) {
+          const x = (canvas.width / 4) * (i % 3) + canvas.width / 6;
+          const y = (canvas.height / 3) * Math.floor(i / 3) + canvas.height / 4;
+          ctx.fillText('🥥', x, y);
+        }
+
+        const logo = new Image();
+        logo.crossOrigin = "anonymous";
+        logo.src = 'assets/image.png';
+        logo.onload = () => drawTextAndLogo(ctx, canvas, logo);
+        logo.onerror = () => drawTextAndLogo(ctx, canvas, null);
+      }
+
+      function drawTextAndLogo(ctx, canvas, logoImg) {
+        const minSide = Math.min(canvas.width, canvas.height);
+
+        if (logoImg) {
+          const logoSize = minSide * 0.19;
+          const logoX = (canvas.width - logoSize) / 2;
+          const logoY = canvas.height * 0.20;
+          ctx.shadowColor = 'rgba(0,0,0,0.25)';
+          ctx.shadowBlur = 18;
+          ctx.globalAlpha = 0.75;
+          ctx.drawImage(logoImg, logoX, logoY, logoSize, logoSize);
+          ctx.globalAlpha = 1;
+          ctx.shadowColor = 'transparent';
+          ctx.shadowBlur = 0;
+        }
+
+        let mainFontSize = minSide * 0.16;
+        mainFontSize = Math.min(mainFontSize, 40);
+        mainFontSize = Math.max(mainFontSize, 20);
+
+        ctx.fillStyle = '#0b4f6b';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.shadowColor = 'rgba(255,255,255,0.55)';
+        ctx.shadowBlur = 4;
+        ctx.font = `900 ${mainFontSize}px "Poppins", sans-serif`;
+
+        const text = 'RASPA AQUÍ';
+        const maxWidth = canvas.width * 0.8;
+        const metrics = ctx.measureText(text);
+        if (metrics.width > maxWidth) {
+          const scaleFactor = maxWidth / metrics.width;
+          mainFontSize = Math.max(mainFontSize * scaleFactor, 16);
+          ctx.font = `900 ${mainFontSize}px "Poppins", sans-serif`;
+        }
+
+        const textY = canvas.height * 0.60;
+        ctx.fillText(text, canvas.width / 2, textY);
+
+        const subFontSize = mainFontSize * 0.58;
+        ctx.font = `800 ${subFontSize}px "Poppins", sans-serif`;
+        ctx.fillStyle = 'rgba(255,79,125,.95)';
+        ctx.shadowColor = 'transparent';
+        ctx.shadowBlur = 0;
+        ctx.fillText('Descubrí tu premio', canvas.width / 2, textY + mainFontSize * 1.1);
+
+        ctx.globalCompositeOperation = 'destination-out';
+      }
+
+      function rebuildScratchSurface() {
+        sizeCanvas();
+        if (!hasRevealed) {
+          if (document.fonts && document.fonts.ready) {
+            document.fonts.ready.then(drawScratchLayer).catch(drawScratchLayer);
+          } else {
+            drawScratchLayer();
+          }
+        }
+      }
+
+      rebuildScratchSurface();
+      window.addEventListener('resize', () => {
+        if (!isScratching && !hasRevealed) rebuildScratchSurface();
+      });
+
+      function getEventPos(e) {
+        const rect = canvas.getBoundingClientRect();
+        if (e.touches) {
+          return { x: e.touches[0].clientX - rect.left, y: e.touches[0].clientY - rect.top };
+        }
+        return { x: e.clientX - rect.left, y: e.clientY - rect.top };
+      }
+
+      function scratch(e) {
+        if (!isScratching) return;
+
+        const pos = getEventPos(e);
+        ctx.beginPath();
+        ctx.arc(pos.x, pos.y, 35, 0, Math.PI * 2);
+        ctx.fill();
+
+        const now = Date.now();
+        if (now - lastScratchTime > scratchSoundDelay) {
+          scratchSound.currentTime = 0;
+          scratchSound.volume = 0.14;
+          scratchSound.play().catch(()=>{});
+          lastScratchTime = now;
+        }
+
+        checkScratchedAreaThrottled();
+      }
+
+      function checkScratchedAreaThrottled() {
+        if (hasRevealed) return;
+        const now = Date.now();
+        if (now - lastAreaCheck < 240) return;
+        lastAreaCheck = now;
+
+        const img = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+        const totalPixels = img.length / 4;
+
+        const step = 18;
+        let transparent = 0;
+        let sampled = 0;
+
+        for (let p = 0; p < totalPixels; p += step) {
+          const a = img[p * 4 + 3];
+          sampled++;
+          if (a < 90) transparent++;
+        }
+
+        const scratchedPct = (transparent / sampled) * 100;
+        if (scratchedPct > 52) revealPrize();
+      }
+
+      canvas.addEventListener('mousedown', (e) => { isScratching = true; scratch(e); });
+      canvas.addEventListener('mousemove', scratch);
+      canvas.addEventListener('mouseup', () => { isScratching = false; });
+      canvas.addEventListener('mouseleave', () => { isScratching = false; });
+
+      canvas.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        isScratching = true;
+        scratch(e);
+      }, { passive:false });
+
+      canvas.addEventListener('touchmove', (e) => {
+        e.preventDefault();
+        scratch(e);
+      }, { passive:false });
+
+      canvas.addEventListener('touchend', () => { isScratching = false; });
+    }
+
+    function revealPrize() {
+      if (hasRevealed) return;
+      hasRevealed = true;
+
+      const canvas = document.getElementById('scratchCanvas');
+      canvas.style.transition = 'opacity 0.8s ease';
+      canvas.style.opacity = '0';
+
+      backgroundMusic.pause();
+      prizeSound.volume = 0.42;
+      prizeSound.play().catch(()=>{});
+
+      const today = new Date().toDateString();
+      localStorage.setItem(LAST_PLAY_KEY, today);
+      localStorage.setItem(PRIZE_KEY, JSON.stringify(currentPrize));
+      hasPlayedToday = true;
+
+      setTimeout(() => {
+        createConfetti();
+        // ✅ burst al ganar
+        ThreeFX.burst(3, 1);
+
+        setTimeout(showPrizeModal, 450);
+      }, 800);
+    }
+
+    function showPrizeModal() {
+      modalPrize.textContent = `${currentPrize.emoji} ${currentPrize.text}`;
+      modal.classList.add('active');
+    }
+
+    function showAlreadyPlayed() {
+      const savedPrize = localStorage.getItem(PRIZE_KEY);
+      let prizeDisplay = '';
+
+      if (savedPrize) {
+        const prize = JSON.parse(savedPrize);
+        prizeDisplay = `
+          <div style="margin-top:18px;padding:18px;background:rgba(255,255,255,.10);border-radius:16px;border:1px solid rgba(255,255,255,.20);box-shadow:0 18px 36px rgba(0,0,0,.16);backdrop-filter:blur(6px);">
+            <div style="font-size:3rem;margin-bottom:10px;">${prize.emoji}</div>
+            <div style="font-weight:900;font-size:1.15rem;color:#fff;">Tu premio de hoy:</div>
+            <div style="font-weight:800;font-size:1.25rem;margin-top:6px;color:rgba(255,255,255,.92);">${prize.text}</div>
+          </div>
+        `;
+      }
+
+      gameArea.innerHTML = `
+        <div class="status-message">
+          <div class="status-title">🥥 Ya encontraste tu Coco hoy 🥥</div>
+          <div class="status-text">${prizeDisplay}</div>
+        </div>
+      `;
+    }
+
+    function createConfetti() {
+      const colors = ['#ffffff', '#08b3b8', '#ff4f7d', '#ffd700', '#10c2d6'];
+      const count = 85;
+      for (let i = 0; i < count; i++) {
+        setTimeout(() => {
+          const c = document.createElement('div');
+          c.className = 'confetti';
+          c.style.left = Math.random() * 100 + '%';
+          c.style.background = colors[Math.floor(Math.random() * colors.length)];
+          c.style.animationDuration = (Math.random() * 2 + 2) + 's';
+          c.style.animationDelay = (Math.random() * 0.5) + 's';
+          c.style.borderRadius = (Math.random() > 0.6) ? '50%' : '2px';
+          document.body.appendChild(c);
+          setTimeout(() => c.remove(), 4200);
+        }, i * 28);
+      }
+    }
+
+    modalClose.addEventListener('click', () => {
+      modal.classList.remove('active');
+      backgroundMusic.play().catch(()=>{});
+      showAlreadyPlayed();
+    });
+
+    /* ============================================================
+       THREE FX: caída completa desde ARRIBA hasta ABAJO (sin corte)
+       - Spawn OFF-SCREEN arriba (yTop)
+       - Remueve OFF-SCREEN abajo (yBottom)
+       ============================================================ */
+    const ThreeFX = (() => {
+      const canvas = document.getElementById('threeFx');
+      let renderer, scene, camera, clock;
+      let running = false;
+      const objects = [];
+
+      const CFG = {
+        chipRadius: 0.16,
+        chipHeight: 0.05,
+        diceSize: 0.24,
+
+        // X centro (zona media), no pegado a bordes
+        spawnCenterX: 0.50,
+        spawnSpreadX: 0.22,
+
+        // stagger real
+        staggerMsMin: 130,
+        staggerMsMax: 260,
+
+        // física
+        gravity: 2.4,
+        baseDownVel: 0.2,      // arrancan casi quietas y la gravedad hace el resto
+        downVelRand: 0.35,
+        sideVel: 0.55,
+        zVel: 0.10,
+
+        // rotación
+        rotSpeed: 1.8,
+        rotRand: 1.0,
+
+        // vida mínima y máxima (la vida ya no define el “corte”)
+        lifeMin: 5.0,
+        lifeMax: 7.0,
+
+        // bursts ocasionales
+        burstChance: 0.22,
+        burstDelayMin: 7800,
+        burstDelayMax: 14000,
+
+        // ✅ recorrido completo: top/bottom OFF-SCREEN
+        yTopPx: -80,                 // spawn arriba fuera de pantalla
+        yBottomPxExtra: 140          // remueve bastante abajo
+      };
+
+      function init() {
+        if (!window.THREE) return;
+
+        renderer = new THREE.WebGLRenderer({
+          canvas,
+          alpha: true,
+          antialias: true,
+          powerPreference: 'high-performance'
+        });
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+
+        scene = new THREE.Scene();
+
+        camera = new THREE.PerspectiveCamera(55, 1, 0.1, 100);
+        camera.position.set(0, 0, 10);
+
+        clock = new THREE.Clock();
+
+        scene.add(new THREE.AmbientLight(0xffffff, 0.85));
+        const dir = new THREE.DirectionalLight(0xffffff, 0.95);
+        dir.position.set(3, 5, 6);
+        scene.add(dir);
+
+        resize();
+        window.addEventListener('resize', resize);
+      }
+
+      function resize() {
+        const w = Math.max(1, window.innerWidth);
+        const h = Math.max(1, window.innerHeight);
+        renderer.setSize(w, h, false);
+        camera.aspect = w / h;
+        camera.updateProjectionMatrix();
+      }
+
+      function screenToWorld(xPx, yPx, z = 0) {
+        const ndc = new THREE.Vector3(
+          (xPx / window.innerWidth) * 2 - 1,
+          -(yPx / window.innerHeight) * 2 + 1,
+          0.5
+        );
+        ndc.unproject(camera);
+        const dir = ndc.sub(camera.position).normalize();
+        const t = (z - camera.position.z) / dir.z;
+        return camera.position.clone().add(dir.multiplyScalar(t));
+      }
+
+      function rand(min, max) { return min + Math.random() * (max - min); }
+      function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
+
+      function chipMaterial(color) {
+        return new THREE.MeshStandardMaterial({ color, roughness: 0.45, metalness: 0.18 });
+      }
+
+      function makeChip(color = 0xff4f7d) {
+        const geo = new THREE.CylinderGeometry(CFG.chipRadius, CFG.chipRadius, CFG.chipHeight, 28);
+        const matSide = chipMaterial(color);
+        const matTop = new THREE.MeshStandardMaterial({ color, roughness: 0.35, metalness: 0.14 });
+        return new THREE.Mesh(geo, [matSide, matTop, matTop]);
+      }
+
+      function makeDice() {
+        const geo = new THREE.BoxGeometry(CFG.diceSize, CFG.diceSize, CFG.diceSize);
+        const mat = new THREE.MeshStandardMaterial({ color: 0xf7f7f7, roughness: 0.40, metalness: 0.04 });
+        const mesh = new THREE.Mesh(geo, mat);
+
+        const pipMat = new THREE.MeshStandardMaterial({ color: 0x222222, roughness: 0.65, metalness: 0.0 });
+        const pipGeo = new THREE.SphereGeometry(CFG.diceSize * 0.075, 10, 10);
+
+        function addPip(x, y, z) {
+          const p = new THREE.Mesh(pipGeo, pipMat);
+          p.position.set(x, y, z);
+          mesh.add(p);
+        }
+
+        const a = CFG.diceSize * 0.30;
+        const zf = CFG.diceSize * 0.52;
+        const yf = CFG.diceSize * 0.52;
+
+        addPip(-a, -a, zf);
+        addPip( a, -a, zf);
+        addPip( 0,  0, zf);
+        addPip(-a,  a, zf);
+        addPip( a,  a, zf);
+
+        addPip(0, yf, 0);
+        return mesh;
+      }
+
+      function addObject(mesh, startWorld, removeBelowWorldY) {
+        mesh.position.copy(startWorld);
+        mesh.rotation.set(rand(0, Math.PI), rand(0, Math.PI), rand(0, Math.PI));
+
+        const vel = new THREE.Vector3(
+          (Math.random() - 0.5) * CFG.sideVel,
+          -(CFG.baseDownVel + Math.random() * CFG.downVelRand),
+          (Math.random() - 0.5) * CFG.zVel
+        );
+
+        const angVel = new THREE.Vector3(
+          (Math.random() - 0.5) * (CFG.rotSpeed + CFG.rotRand),
+          (Math.random() - 0.5) * (CFG.rotSpeed + CFG.rotRand),
+          (Math.random() - 0.5) * (CFG.rotSpeed + CFG.rotRand)
+        );
+
+        const maxLife = rand(CFG.lifeMin, CFG.lifeMax);
+        objects.push({ mesh, vel, angVel, life: 0, maxLife, removeBelowY: removeBelowWorldY });
+
+        scene.add(mesh);
+      }
+
+      function burst(chips = 3, dice = 1) {
+        // ✅ spawn arriba OFF-SCREEN
+        const yTop = CFG.yTopPx;
+        // ✅ remoción abajo OFF-SCREEN
+        const yBottom = window.innerHeight + CFG.yBottomPxExtra;
+
+        // convertir yBottom a world para remover correctamente (misma z=0)
+        const removeBelowWorldY = screenToWorld(window.innerWidth * 0.5, yBottom, 0).y;
+
+        function spawnOne(kind) {
+          // X en zona media (clamp)
+          const cx = CFG.spawnCenterX * window.innerWidth;
+          const x = cx + (Math.random() - 0.5) * (CFG.spawnSpreadX * window.innerWidth);
+          const x2 = clamp(x, window.innerWidth * 0.18, window.innerWidth * 0.82);
+
+          // Y fijo arriba (off-screen)
+          const origin = screenToWorld(x2, yTop, 0);
+
+          const pal = [0xff4f7d, 0x08b3b8, 0xffd700];
+          const mesh = (kind === 'chip')
+            ? makeChip(pal[(Math.random() * pal.length) | 0])
+            : makeDice();
+
+          // pequeño jitter en x/z para separación
+          origin.x += (Math.random() - 0.5) * 0.28;
+          origin.z += (Math.random() - 0.5) * 0.12;
+
+          addObject(mesh, origin, removeBelowWorldY);
+          wake(6.2);
+        }
+
+        let queue = [];
+        for (let i = 0; i < chips; i++) queue.push('chip');
+        for (let i = 0; i < dice; i++) queue.push('dice');
+
+        // shuffle
+        for (let i = queue.length - 1; i > 0; i--) {
+          const j = (Math.random() * (i + 1)) | 0;
+          [queue[i], queue[j]] = [queue[j], queue[i]];
+        }
+
+        let t = 0;
+        for (const kind of queue) {
+          t += rand(CFG.staggerMsMin, CFG.staggerMsMax);
+          setTimeout(() => spawnOne(kind), t);
+        }
+      }
+
+      let wakeUntil = 0;
+      function wake(seconds = 3.0) {
+        const t = performance.now() * 0.001;
+        wakeUntil = Math.max(wakeUntil, t + seconds);
+        if (!running) {
+          running = true;
+          requestAnimationFrame(loop);
+        }
+      }
+
+      function loop() {
+        const dt = Math.min(clock.getDelta(), 0.033);
+        const t = performance.now() * 0.001;
+
+        for (let i = objects.length - 1; i >= 0; i--) {
+          const o = objects[i];
+          o.life += dt;
+
+          o.vel.y -= CFG.gravity * dt;
+          o.mesh.position.addScaledVector(o.vel, dt);
+
+          o.mesh.rotation.x += o.angVel.x * dt;
+          o.mesh.rotation.y += o.angVel.y * dt;
+          o.mesh.rotation.z += o.angVel.z * dt;
+
+          // fade suave al final de vida, pero NO corta por vida antes de salir de pantalla
+          const lifeFade = Math.max(0, 1 - (o.life / o.maxLife));
+          const s = 0.95 + lifeFade * 0.12;
+          o.mesh.scale.setScalar(s);
+
+          // ✅ remover cuando realmente se va abajo off-screen (evita "corte")
+          if (o.mesh.position.y < o.removeBelowY || o.life >= (o.maxLife + 2.0)) {
+            scene.remove(o.mesh);
+            o.mesh.geometry?.dispose?.();
+            if (Array.isArray(o.mesh.material)) o.mesh.material.forEach(m => m.dispose?.());
+            else o.mesh.material?.dispose?.();
+            objects.splice(i, 1);
+          }
+        }
+
+        renderer.render(scene, camera);
+
+        if (objects.length === 0 && t > wakeUntil) {
+          running = false;
+          return;
+        }
+        requestAnimationFrame(loop);
+      }
+
+      function scheduleBursts() {
+        setTimeout(() => burst(2, 1), 900);
+
+        const tick = () => {
+          const delay = Math.floor(rand(CFG.burstDelayMin, CFG.burstDelayMax));
+          setTimeout(() => {
+            if (Math.random() < CFG.burstChance) {
+              const chips = (Math.random() < 0.7) ? 2 : 3;
+              const dice  = (Math.random() < 0.8) ? 1 : 2;
+              burst(chips, dice);
+            }
+            tick();
+          }, delay);
+        };
+        tick();
+      }
+
+      function start() {
+        if (renderer) return;
+        init();
+        renderer.render(scene, camera);
+      }
+
+      return { start, burst, scheduleBursts, CFG };
+    })();
+
+    initGame();
+  </script>
+</body>
+</html>
